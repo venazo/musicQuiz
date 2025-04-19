@@ -1,2 +1,8 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<script>
+
+</script>
+
+<a href="http://localhost:3000/login">
+    <button>Login with Spotify</button>
+</a>
+<a href="/dashboard">dashboard</a>
