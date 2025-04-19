@@ -1,4 +1,4 @@
-<!--<script>
+<script>
 	let title = "";
 	let artist = "";
 	let year = "";
@@ -16,7 +16,6 @@
 		});
 
 		if (res.ok) {
-			// Clear input fields
 			title = "";
 			artist = "";
 			year = "";
@@ -27,23 +26,6 @@
 		}
 	}
 </script>
-
-<head>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-	body{
-		background-color: #001113;
-	}
-	div{
-		margin: auto
-	}
-	input{
-		background-color: #ECECED
-		border: 3px solid #C4DBDC;
-		border-radius: 10px;
-	}
-</style>
-</head>
 
 <body>
 <div>
@@ -59,4 +41,3 @@
 	<button on:click={save}>Save</button><br />
 </div>
 </body>
--->
