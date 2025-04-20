@@ -1,15 +1,24 @@
-require('dotenv').config();
+const dotnev = require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const querystring = require('querystring');
+const fs = require("fs");
+const path = require('path');
+const { json } = require('stream/consumers');
+
+const filePath = path.resolve('tracks.json');
 
 const app = express();
+
 app.use(cors({
     origin: 'http://localhost:5173',
-    credentials: true
+    credentials: true,
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type']
 }));
+
 app.use(cookieParser());
 
 const client_id = process.env.SPOTIFY_CLIENT_ID;
@@ -28,6 +37,43 @@ function generateRandomString(length) {
 
     return result;
 }
+
+app.post('/serialize', (req, res) => {
+	const track = req.body;
+
+    console.log(track);
+
+	let existingData = [];
+
+	if (fs.existsSync(filePath)) {
+		const raw = fs.readFileSync(filePath, 'utf-8');
+		try {
+			existingData = JSON.parse(raw);
+		} catch {
+			existingData = [];
+		}
+	}
+
+	existingData.push(track);
+
+	fs.writeFileSync(filePath, JSON.stringify(existingData, null, 2));
+});
+
+app.get('/deserialize', (req, res) => {
+	let existingData = [];
+
+	if (fs.existsSync(filePath)) {
+		const raw = fs.readFileSync(filePath, 'utf-8');
+		try {
+			existingData = JSON.parse(raw);
+		} catch {
+			existingData = [];
+		}
+	}
+    
+    res.json(existingData); 
+});
+
 
 app.get('/login', (req, res) => {
     var state = generateRandomString(16);
@@ -82,7 +128,7 @@ app.get('/callback', async (req, res) => {
             sameSite: 'Lax'
         });
 
-        res.redirect('http://localhost:5173/dashboard');
+        res.redirect(frontend_uri);
 
     } catch (error) {
         console.error('Error fetching Spotify token!');

@@ -1,4 +1,7 @@
 <script>
+    import { json } from "@sveltejs/kit";
+
+
 	let title = "";
 	let artist = "";
 	let year = "";
@@ -7,7 +10,7 @@
 	async function save() {
 		const track = { title, artist, year, trackID };
 
-		const res = await fetch('/save-track', {
+		const res = await fetch('http://localhost:3000/serialize', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
@@ -27,7 +30,6 @@
 	}
 </script>
 
-<body>
 <div>
 	<label for="title">Title:</label><br>
     <input bind:value={title}><br>
@@ -40,4 +42,3 @@
 
 	<button on:click={save}>Save</button><br />
 </div>
-</body>
