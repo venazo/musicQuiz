@@ -6,13 +6,10 @@
 
 <script>
     import { onMount } from 'svelte';
-    import { CheckIfToken } from '$lib/TokenChecker';
+    import { CheckIfLoggedIn } from '$lib/CheckIfLoggedIn';
 
     onMount(() => {
-        if(!CheckIfToken())
-        {
-            window.location.assign("/login");
-        }
+        CheckIfLoggedIn();
     });
 </script>
 

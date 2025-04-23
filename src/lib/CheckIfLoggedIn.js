@@ -1,4 +1,4 @@
-export async function CheckIfToken()
+export async function CheckIfLoggedIn()
 {
     try {
         const res = await fetch('http://localhost:3000/token', { credentials: 'include' });
@@ -8,6 +8,7 @@ export async function CheckIfToken()
     }
     catch(error)
     {
+        window.location.href = "http://localhost:5173/login";
         return false;
     }
 }

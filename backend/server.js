@@ -176,8 +176,6 @@ app.get('/token', async (req, res) => {
         }
 
         res.json({ success: true, token: req.cookies.spotify_data[0]});
-        
-        return;
 
     } catch (error) {
         res.json({ success: false, token: "" });

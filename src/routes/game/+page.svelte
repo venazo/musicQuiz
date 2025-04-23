@@ -8,26 +8,21 @@
     import SongGuess from "$lib/components/SongGuess.svelte";
     import { onMount } from 'svelte';
 	import MusicPlayer from "$lib/MusicPlayer";
-    import { CheckIfToken } from '$lib/TokenChecker';
+    import { CheckIfLoggedIn } from '$lib/CheckIfLoggedIn';
     import { onDestroy } from "svelte";
-
-    onMount(() => { 
-        CheckIfToken();
-    });
 
     let music_Player;
 
     onMount(() => { 
-        if(!CheckIfToken())
-        {
-            window.location.assign("./login");
-        }
+        CheckIfLoggedIn();
+
         music_Player = new MusicPlayer();
         music_Player.Init();
     });
 
     onDestroy(() => {
-        music_Player.Stop();
+        if (music_Player)
+            music_Player.Stop();
     });
 </script>
 
