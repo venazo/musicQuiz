@@ -23,9 +23,9 @@
 			artist = "";
 			year = "";
 			trackID = "";
-			alert("Saved!");
+			console.log("SAVED!")
 		} else {
-			alert("Error saving!");
+			console.log("ERROR WHILE SAVING!");
 		}
 	}
 </script>

@@ -11,6 +11,7 @@ const { json } = require('stream/consumers');
 const filePath = path.resolve('tracks.json');
 
 const app = express();
+app.use(express.json());
 
 app.use(cors({
     origin: 'http://localhost:5173',
@@ -51,12 +52,16 @@ app.post('/serialize', (req, res) => {
 			existingData = JSON.parse(raw);
 		} catch {
 			existingData = [];
+            res.json({"ok": false})
+            return;
 		}
 	}
 
 	existingData.push(track);
 
 	fs.writeFileSync(filePath, JSON.stringify(existingData, null, 2));
+
+    res.json({"ok": true});
 });
 
 app.get('/deserialize', (req, res) => {
