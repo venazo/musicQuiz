@@ -6,81 +6,93 @@
 
 <style>
     :global(body) {
-		margin: 0;
-		padding: 0;
-		font-family: Tahoma, Geneva, Verdana, sans-serif;
-		background-color: #121212;
-		color: #ffffff;
-		height: 100vh;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-	}
+        margin: 0;
+        padding: 0;
+        font-family: Tahoma, Verdana, sans-serif;
+        background: linear-gradient(145deg, #121212, #414141);
+        color: #ffffff;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+    }
 
-	.container {
-		text-align: center;
-		width: 90%;
-        max-width: 600px
-	}
+    .container {
+        text-align: center;
+        width: 90%;
+        max-width: 600px;
+        position: relative;
+        z-index: 1;
+    }
 
-	.at {
-    	color: #A67527;
+    .at {
+        color: #e29924;
         font-size: clamp(2.5rem, 10vw, 6rem);
-		margin-bottom: 4rem;
-        font-family: Tahoma, Verdana;
+        margin-bottom: 3rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
         text-decoration: none;
-        font-weight: bold;
-        display: block
-	}
+        transition: transform 0.3s ease;
+    }
+
+    .at:hover {
+        transform: scale(1.01);
+    }
+
+    .at i {
+        font-size: 1.2em;
+        color: #e29924;
+        margin-right: 0.75rem;
+    }
 
     .a1 {
-    	font-family: Tahoma, Verdana;
         font-weight: bold;
-    	padding: 1rem 2rem;
-		border-radius: 25px;
-		border: 2px solid #2e2e2e;
-		background-color: #1e1e1e;
-		color: white;
-		font-size: clamp(1rem, 2vw, 2rem);
-		outline: none;
-		transition: border-color 0.3s ease;
+        padding: 1rem 2rem;
+        border-radius: 30px;
+        border: none;
+        background: #1e1e1e;
+        color: #fff;
+        font-size: clamp(1rem, 2vw, 1.5rem);
         text-decoration: none;
-        display: inline-block;
-        width: clamp(120px, 30vw, 250px);
-    }
-    
-    .a1 i {
-        margin-right: 0.5rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        backdrop-filter: blur(8px);
+        transition: transform 0.2s ease, box-shadow 0.3s ease;
+        width: clamp(150px, 35vw, 300px);
     }
 
-    
     .a1:hover {
-    	border-color: #D5D5D5;
-        }
+        transform: scale(1.05);
+        box-shadow: 0 6px 25px #3b3b3b;
+    }
 
     .button-group {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1.5rem;
-      }
-
-      @media (max-width: 600px) {
-      .at {
-        margin-bottom: 2rem;
-      }
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
     }
 
+
+    @media (max-width: 600px) {
+        .at {
+            margin-bottom: 2rem;
+        }
+    }
 </style>
 
-
-    <div class="container">
-        <div class ="button-group">
-            <a class="at" href="./">MusicQuiz</a>
-        </div>
-        <div class="button-group">
-            <a class="a1" href="/game">
-                <i class="fas fa-play"></i>Play</a>              
-            <a class="a1"href="/track-form">+ Add Songs</a>
-        </div>
+<div class="container">
+    <div class="button-group">
+        <a class="at" href="./"><i class="fas fa-music"></i>MusicQuiz</a>
     </div>
+    <div class="button-group">
+        <a class="a1" href="/game"><i class="fas fa-play"></i>Play</a>
+        <a class="a1" href="/track-form"><i class="fas fa-plus"></i>Add Songs</a>
+    </div>
+</div>

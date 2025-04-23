@@ -102,49 +102,71 @@
 
 <style>
     :global(body) {
-		margin: 0;
-		padding: 0;
-		font-family: Tahoma, Geneva, Verdana, sans-serif;
-		background-color: #121212;
-		color: #ffffff;
-		height: 100vh;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-	}
+        margin: 0;
+        padding: 0;
+        font-family: Tahoma, Verdana, sans-serif;
+        background: linear-gradient(145deg, #121212, #414141);
+        color: #ffffff;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+    }
 
 	.container {
-		text-align: center;
-		width: 90%;
-		max-width: 600px;
-	}
+        text-align: center;
+        width: 90%;
+        max-width: 600px;
+        position: relative;
+        z-index: 1;
+    }
 
 	.at {
-		color: #A67527;
-		font-size: clamp(2.5rem, 10vw, 6rem);
-		margin-bottom: 4rem;
-		font-family: Tahoma, Verdana;
-		text-decoration: none;
-		font-weight: bold;
-		display: block;
-	}
+        color: #e29924;
+        font-size: clamp(2.5rem, 10vw, 6rem);
+        margin-bottom: 3rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        text-decoration: none;
+        transition: transform 0.3s ease;
+    }
+
+    .at:hover {
+        transform: scale(1.01);
+    }
+
+    .at i {
+        font-size: 1.2em;
+        color: #e29924;
+        margin-right: 0.75rem;
+    }
+	
 
 	input {
-		padding: 1rem;
-		width: 60%;
-		max-width: 400px;
-		border-radius: 25px;
-		border: 2px solid #2e2e2e;
+		padding: 1rem 2rem;
+		width: clamp(150px, 35vw, 300px);
+		border-radius: 30px;
+		border: none;
 		background-color: #1e1e1e;
 		color: white;
-		font-size: clamp(1rem, 2vw, 2rem);
+		font-size: clamp(1rem, 2vw, 1.5rem);
 		font-family: Tahoma, Verdana;
 		outline: none;
-		transition: border-color 0.3s ease;
+		transition: transform 0.2s ease, box-shadow 0.3s ease;
+		gap: 0.5rem;
+        backdrop-filter: blur(8px);
+		justify-content: center;
+		display: inline-flex;
+        align-items: center;
 	}
 
 	input:hover {
-    	border-color: #D5D5D5;
+    	transform: scale(1.05);
+        box-shadow: 0 6px 25px #3b3b3b;
         }
 
 	.input-group {
@@ -154,26 +176,54 @@
 		gap: 1rem;
 	}
 
-	button {
+	.guess {
     	font-family: Tahoma, Verdana;
         font-weight: bold;
-    	padding: 1rem 2rem;
-		border-radius: 25px;
-		border: 2px solid #2e2e2e;
-		background-color: #1e1e1e;
-		color: white;
-		font-size: clamp(1rem, 2vw, 2rem);
-		outline: none;
-		transition: border-color 0.3s ease;
+        padding: 1rem 2rem;
+        border-radius: 30px;
+        border: none;
+        background: #e29924;
+        color: #fff;
+        font-size: clamp(1rem, 2vw, 1.5rem);
         text-decoration: none;
-		display: inline-block;
-        width: clamp(120px, 30vw, 250px);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        backdrop-filter: blur(8px);
+        transition: transform 0.2s ease, box-shadow 0.3s ease;
+        width: clamp(150px, 35vw, 300px);
     }
 
-	button:hover {
-    	border-color: #D5D5D5;
+	.guess:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 25px #a27020;
 	}
 
+    .button {
+    	font-family: Tahoma, Verdana;
+        font-weight: bold;
+        padding: 1rem 2rem;
+        border-radius: 30px;
+        border: none;
+        background: #1e1e1e;
+        color: #fff;
+        font-size: clamp(1rem, 2vw, 1.5rem);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        backdrop-filter: blur(8px);
+        transition: transform 0.2s ease, box-shadow 0.3s ease;
+        width: clamp(150px, 35vw, 300px);
+    }
+
+	.button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 25px #3b3b3b;
+	}
+    
     i {
         margin-right: 0.5rem;
     }
@@ -187,12 +237,12 @@
 
 <div class="Song">
     <div>
-        <a class="at" href="./">MusicQuiz</a>
+        <a class="at" href="./"><i class="fas fa-music"></i>MusicQuiz</a>
     </div>
     <div class="input-group">
-        <input placeholder="Guess..." bind:value={guess} maxlength={maxGuesslength} /><br>
-        <button onclick={Play}><i class="fas fa-play"></i>Start</button>
-        <button onclick={Guess}>Guess</button>
+        <input placeholder="Guess the Song..." bind:value={guess} maxlength={maxGuesslength} /><br>
+        <button class="button" onclick={Play}><i class="fas fa-play"></i>Start</button>
+        <button class="guess" onclick={Guess}>Guess</button>
     </div>
     <text id="guessOutput">{bestGuess}</text>
 </div>
