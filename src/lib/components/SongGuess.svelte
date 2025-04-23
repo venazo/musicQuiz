@@ -104,6 +104,15 @@
         if(guesses == 0)
         {
             lost = true;
+            bestGuessString = "";
+            for(let i = 0; i < guessable.length; i++)
+            {
+                if(i != 0) {
+                    bestGuessString += " "; 
+                }
+
+                bestGuessString += guessable[i];
+            }
         }
     }
 
@@ -215,7 +224,7 @@
 
     .lost:hover {
         transform: scale(1.05);
-        box-shadow: 0 6px 25px #9a1c1c;
+        box-shadow: 0 6px 25px #831a1a;
     }
 
     .won {
@@ -239,7 +248,7 @@
 
 	.won:hover {
         transform: scale(1.05);
-        box-shadow: 0 6px 25px #2c9c18;
+        box-shadow: 0 6px 25px #288218;
 	}
 
 	.guess {

@@ -140,13 +140,11 @@
 <div class="container">
 	<div class="input-group">
 		<a class="at" href="./"><i class="fas fa-music"></i>MusicQuiz</a>
-	</div>
-	<div class="input-group">
-	<input placeholder="Title..." bind:value={title} /><br />
-	<input placeholder="Artist..." bind:value={artist} /><br />
-	<input placeholder="Year..." bind:value={year} /><br />
-	<input placeholder="Track ID..." bind:value={trackID} /><br />
+		<input placeholder="Title..." bind:value={title} /><br />
+		<input placeholder="Artist..." bind:value={artist} /><br />
+		<input placeholder="Year..." bind:value={year} /><br />
+		<input placeholder="Track ID..." bind:value={trackID} /><br />
 
-	<button on:click={save}>Save</button>
+		<button on:click={save}>Save</button>
 	</div>
 </div>
