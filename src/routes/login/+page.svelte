@@ -1,6 +1,6 @@
 <svelte:head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Home - MusicQuiz</title>
+    <title>MusicQuiz</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </svelte:head>
 
@@ -33,13 +33,13 @@
         display: block
 	}
 
-    .a1 {
+    .a_login {
     	font-family: Tahoma, Verdana;
         font-weight: bold;
     	padding: 1rem 2rem;
 		border-radius: 25px;
 		border: 2px solid #2e2e2e;
-		background-color: #1e1e1e;
+		background-color: #1ED760;
 		color: white;
 		font-size: clamp(1rem, 2vw, 2rem);
 		outline: none;
@@ -49,13 +49,8 @@
         width: clamp(120px, 30vw, 250px);
     }
     
-    .a1 i {
-        margin-right: 0.5rem;
-    }
-
-    
-    .a1:hover {
-    	border-color: #D5D5D5;
+    .a_login:hover {
+    	border-color: #01BE45;
         }
 
     .button-group {
@@ -64,6 +59,10 @@
       align-items: center;
       gap: 1.5rem;
       }
+
+    i {
+        margin-right: 0.5rem;
+    }
 
       @media (max-width: 600px) {
       .at {
@@ -79,8 +78,12 @@
             <a class="at" href="./">MusicQuiz</a>
         </div>
         <div class="button-group">
-            <a class="a1" href="/game">
-                <i class="fas fa-play"></i>Play</a>              
-            <a class="a1"href="/track-form">+ Add Songs</a>
+            <a class="a_login" href="http://localhost:3000/login"><i class="fab fa-spotify"></i>Login</a>
         </div>
     </div>
+
+
+
+
+
+

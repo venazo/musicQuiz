@@ -1,3 +1,8 @@
+<svelte:head>
+  <title>Play - MusicQuiz</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</svelte:head>
 <script>
     import { onMount } from "svelte";
 
@@ -95,17 +100,99 @@
     }
 </script>
 
+<style>
+    :global(body) {
+		margin: 0;
+		padding: 0;
+		font-family: Tahoma, Geneva, Verdana, sans-serif;
+		background-color: #121212;
+		color: #ffffff;
+		height: 100vh;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.container {
+		text-align: center;
+		width: 90%;
+		max-width: 600px;
+	}
+
+	.at {
+		color: #A67527;
+		font-size: clamp(2.5rem, 10vw, 6rem);
+		margin-bottom: 4rem;
+		font-family: Tahoma, Verdana;
+		text-decoration: none;
+		font-weight: bold;
+		display: block;
+	}
+
+	input {
+		padding: 1rem;
+		width: 60%;
+		max-width: 400px;
+		border-radius: 25px;
+		border: 2px solid #2e2e2e;
+		background-color: #1e1e1e;
+		color: white;
+		font-size: clamp(1rem, 2vw, 2rem);
+		font-family: Tahoma, Verdana;
+		outline: none;
+		transition: border-color 0.3s ease;
+	}
+
+	input:hover {
+    	border-color: #D5D5D5;
+        }
+
+	.input-group {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 1rem;
+	}
+
+	button {
+    	font-family: Tahoma, Verdana;
+        font-weight: bold;
+    	padding: 1rem 2rem;
+		border-radius: 25px;
+		border: 2px solid #2e2e2e;
+		background-color: #1e1e1e;
+		color: white;
+		font-size: clamp(1rem, 2vw, 2rem);
+		outline: none;
+		transition: border-color 0.3s ease;
+        text-decoration: none;
+		display: inline-block;
+        width: clamp(120px, 30vw, 250px);
+    }
+
+	button:hover {
+    	border-color: #D5D5D5;
+	}
+
+    i {
+        margin-right: 0.5rem;
+    }
+
+	@media (max-width: 600px) {
+		.at {
+			margin-bottom: 2rem;
+		}
+	}
+</style>
+
 <div class="Song">
-    <input bind:value={guess} maxlength={maxGuesslength} /><br>
-    <button onclick={Guess}>Guess</button>
-    <button onclick={Play}>Play</button>
+    <div>
+        <a class="at" href="./">MusicQuiz</a>
+    </div>
+    <div class="input-group">
+        <input placeholder="Guess..." bind:value={guess} maxlength={maxGuesslength} /><br>
+        <button onclick={Play}><i class="fas fa-play"></i>Start</button>
+        <button onclick={Guess}>Guess</button>
+    </div>
     <text id="guessOutput">{bestGuess}</text>
 </div>
-
-<style>
-    div
-    {
-        width: 100%;
-        height: 100%;
-    }
-</style>
