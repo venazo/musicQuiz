@@ -127,10 +127,18 @@ app.get('/callback', async (req, res) => {
         }
 
         const access_token = tokenResponse.data.access_token;
-        res.cookie('spotify_token', access_token, {
+        let expires_in = tokenResponse.data.expires_in;
+        const refresh_token = tokenResponse.data.refresh_token;
+
+        expires_in -= 60;
+
+        const data = [access_token, expires_in, refresh_token]
+
+        res.cookie('spotify_data', data, {
             httpOnly: true,
             secure: false,
-            sameSite: 'Lax'
+            sameSite: 'Lax',
+            maxAge: 30 * 24 * 60 * 60 * 1000
         });
 
         res.redirect(frontend_uri);
@@ -141,9 +149,77 @@ app.get('/callback', async (req, res) => {
     }
 });
 
-app.get('/token', (req, res) => {
-    const token = req.cookies.spotify_token;
-    res.json({ token });
+app.get('/token', async (req, res) => {
+    const data = req.cookies.spotify_data;
+
+    try {
+        if(data[1] <= 0)
+        {
+            const response = await axios.post(
+                'https://accounts.spotify.com/api/token',
+                new URLSearchParams({
+                    grant_type: 'refresh_token',
+                    refresh_token: data.refresh_token
+                }),
+                {
+                    headers: {
+                        Authorization: `Basic ${authHeader}`,
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                }
+            );
+
+            if(!response.data["success"])
+            {
+                throw error;
+            }
+        }
+
+        res.json({ success: true, token: req.cookies.spotify_data[0]});
+        
+        return;
+
+    } catch (error) {
+        res.json({ success: false, token: "" });
+    }
+});
+
+app.get('/refresh-token', async (req, res) => {
+    const data = req.cookies.data;
+
+    const authHeader = Buffer.from(
+        `${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`
+    ).toString('base64');
+    
+    try {
+        const response = await axios.post(
+            'https://accounts.spotify.com/api/token',
+            new URLSearchParams({
+                grant_type: 'refresh_token',
+                refresh_token: data[2]
+            }),
+            {
+                headers: {
+                    Authorization: `Basic ${authHeader}`,
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            }
+        );
+
+        const data = [response.data.access_token, response.data.expires_in, response.data.refresh_token];
+
+        res.cookie('spotfiy_data', data, {
+            httpOnly: true,
+            secure: false,
+            sameSite: 'Lax',
+            maxAge: 30 * 24 * 60 * 60 * 1000
+        });
+
+        res.json({ success: true });
+
+    } catch (error) {
+        res.json({ success: false });
+    }
 });
 
 app.listen(3000, () => console.log('Server running on http://localhost:3000'));

@@ -1,26 +1,33 @@
-<svelte:head>
-  <title>Play - MusicQuiz</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-</svelte:head>
 <script>
     import { onMount } from "svelte";
-
 
     let {mode = "title", musicPlayer} = $props();
 
     let guess = $state("");
-    let bestGuess = $state("");
+    let bestGuess = $state([]);
+    let bestGuessString = $state("");
+    let won = $state(false);
+    let lost = $state(false);
 
-    let trackID = 'spotify:track:'
+    let trackID = "";
     let guessable = '';
     let guesses = 3;
     let maxGuesslength = $state(20);
 
-    onMount( async () =>
+    onMount( async () => Init());
+
+    async function Init() 
     {
         let songList;
 
+        guess = "";
+        bestGuess = [];
+        bestGuessString = "";
+        won = false;
+        lost = false;
+        trackID = "";
+        guesses = 3;
+        
         const res = await fetch('http://localhost:3000/deserialize', {
             method: 'GET',
             headers: {
@@ -35,68 +42,80 @@
         let index = Math.floor(Math.random() * songList.length);
         let randomSong = songList[index];
 
-        trackID += randomSong["trackID"];
-        console.log(randomSong);
-        guessable = randomSong[mode];
+
+        trackID = "spotify:track:" + randomSong["trackID"];
+        guessable = randomSong[mode].split(" ");
 
         if(mode == "year")
         {
             maxGuesslength = 4;
         }
-    });
 
-
+        bestGuessString = "";
+        for(let i = 0; i < guessable.length; i++)
+        {
+            bestGuess.push(guessable[i].replace(/./g, "_"));
+            if(i != 0) {
+                bestGuessString += " ";
+            }
+            bestGuessString += bestGuess[i];
+        }
+    }
 
     function Guess()
     {
-        const songWords = guessable.split(" ");
         const guessWords = guess.split(" ");
-        const bestGuessWords = bestGuess.split(" ");
 
-        let pos = [];
-
-        for (let i = 0; i < songWords.length; i++) 
+        for (let i = 0; i < guessable.length; i++) 
         {
             for(let j = 0; j < guessWords.length; j++) 
             {
-                if(songWords[i] == guessWords[j])
+                if(guessable[i].toLowerCase() == guessWords[j].toLocaleLowerCase())
                 {
-                    pos.push(i);
+                    bestGuess[i] = guessable[i];
                 }
             }
         }
 
-        let double = false;
-        for(let i = 0; i < pos.length; i++)
+        bestGuessString = "";
+        for(let i = 0; i < bestGuess.length; i++)
         {
-            for(let j = 0; j < bestGuessWords.length; j++)
-            {
-                if(bestGuessWords[j] == songWords[pos[i]])
-                {
-                    double = true;
-                    break;
-                }
+            if(i != 0) {
+                bestGuessString += " "; 
             }
-            if(double == false)
-            {
-                bestGuess += " ";
-                bestGuess += songWords[pos[i]];
-            }
-            else
-            {
-                double = false;
-            }
+
+            bestGuessString += bestGuess[i];
         }
 
-        if(bestGuess == guessable)
+        guess = "";
+
+        let identical = true
+        for(let i = 0; i < guessable.length; i++)
         {
-            
+            if(bestGuess[i] != guessable[i])
+                identical = false;
+        }
+
+        if(identical)
+        {
+            won = true;
+        }
+        guesses--;
+        if(guesses == 0)
+        {
+            lost = true;
         }
     }
 
     function Play()
     {
         musicPlayer.PlayTrack(trackID);
+    }
+
+    function Next()
+    {
+        musicPlayer.Stop();
+        Init();
     }
 </script>
 
@@ -145,7 +164,6 @@
         margin-right: 0.75rem;
     }
 	
-
 	input {
 		padding: 1rem 2rem;
 		width: clamp(150px, 35vw, 300px);
@@ -174,6 +192,54 @@
 		flex-direction: column;
 		align-items: center;
 		gap: 1rem;
+	}
+
+    .lost {
+    	font-family: Tahoma, Verdana;
+        font-weight: bold;
+        padding: 1rem 2rem;
+        border-radius: 30px;
+        border: none;
+        background: #9a1c1c;
+        color: #fff;
+        font-size: clamp(1rem, 2vw, 1.5rem);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        backdrop-filter: blur(8px);
+        transition: transform 0.2s ease, box-shadow 0.3s ease;
+        width: clamp(150px, 35vw, 300px);
+    }
+
+    .lost:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 25px #9a1c1c;
+    }
+
+    .won {
+    	font-family: Tahoma, Verdana;
+        font-weight: bold;
+        padding: 1rem 2rem;
+        border-radius: 30px;
+        border: none;
+        background: #2c9c18;
+        color: #fff;
+        font-size: clamp(1rem, 2vw, 1.5rem);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        backdrop-filter: blur(8px);
+        transition: transform 0.2s ease, box-shadow 0.3s ease;
+        width: clamp(150px, 35vw, 300px);
+    }
+
+	.won:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 25px #2c9c18;
 	}
 
 	.guess {
@@ -228,6 +294,14 @@
         margin-right: 0.5rem;
     }
 
+    .GuessDisplay{
+		display: flex;
+		flex-direction: column;
+    	font-family: Tahoma, Verdana;
+        font-weight: bold;
+        font-size: clamp(2rem, 4vw, 3rem);
+    }
+
 	@media (max-width: 600px) {
 		.at {
 			margin-bottom: 2rem;
@@ -240,9 +314,17 @@
         <a class="at" href="./"><i class="fas fa-music"></i>MusicQuiz</a>
     </div>
     <div class="input-group">
+        <text class="GuessDisplay">{bestGuessString}</text>
         <input placeholder="Guess the Song..." bind:value={guess} maxlength={maxGuesslength} /><br>
         <button class="button" onclick={Play}><i class="fas fa-play"></i>Start</button>
-        <button class="guess" onclick={Guess}>Guess</button>
+        {#if won}
+            <button class="won" onclick={Next}>Next</button>
+        {:else}
+            {#if lost}
+                <button class="lost" onclick={Next}>Next</button>
+            {:else}
+                <button class="guess" onclick={Guess}>Guess</button>
+            {/if}
+        {/if}
     </div>
-    <text id="guessOutput">{bestGuess}</text>
 </div>

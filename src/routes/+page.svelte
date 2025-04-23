@@ -4,6 +4,18 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </svelte:head>
 
+<script>
+    import { onMount } from 'svelte';
+    import { CheckIfToken } from '$lib/TokenChecker';
+
+    onMount(() => {
+        if(!CheckIfToken())
+        {
+            window.location.assign("/login");
+        }
+    });
+</script>
+
 <style>
     :global(body) {
         margin: 0;

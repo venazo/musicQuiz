@@ -20,13 +20,12 @@ export default class MusicPlayer
 			const spotifyPlayer = window.Spotify;
 
 			this.player = new spotifyPlayer.Player({
-				name: 'My Web Player',
+				name: 'MusicQuiz',
 				getOAuthToken: async cb => {
 					const res = await fetch('http://localhost:3000/token', { credentials: 'include' });
-					if (!res.ok) throw new Error('Not authenticated');
-					let data = await res.json();
+					let data = await res.json();	
+					if (!data.success) throw new Error('Not authenticated');
 					this.token = data.token;
-
 					cb(this.token);
 				},
 				volume: 0.5
@@ -76,5 +75,15 @@ export default class MusicPlayer
 		} else {
 			console.log('Playback started!');
 		}
+	}
+
+	async Stop()
+	{
+		const response = await fetch('https://api.spotify.com/v1/me/player/pause', {
+			method: 'PUT',
+			headers: {
+			  'Authorization': `Bearer ${this.token}`
+			}
+		  });
 	}
 }
