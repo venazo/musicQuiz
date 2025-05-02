@@ -1,0 +1,26 @@
+{
+  "kind": "collectionType",
+  "collectionName": "songs",
+  "info": {
+    "singularName": "song",
+    "pluralName": "songs",
+    "displayName": "Song"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "Title": {
+      "type": "string"
+    },
+    "Artist": {
+      "type": "string"
+    },
+    "Year": {
+      "type": "biginteger"
+    },
+    "TrackID": {
+      "type": "string"
+    }
+  }
+}

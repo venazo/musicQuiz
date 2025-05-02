@@ -7,14 +7,22 @@ const querystring = require('querystring');
 const fs = require("fs");
 const path = require('path');
 const { json } = require('stream/consumers');
+const { error } = require('console');
 
 const filePath = path.resolve('tracks.json');
+
+const client_id = process.env.SPOTIFY_CLIENT_ID;
+const client_secret = process.env.SPOTIFY_CLIENT_SECRET;
+const redirect_uri = process.env.PUBLIC_REDIRECT_URI;
+const frontend_uri = process.env.PUBLIC_FRONTEND_URI;
+const strapi_uri = process.env.STRAPI_URI;
+const strapi_token = process.env.STRAPI_TOKEN;
 
 const app = express();
 app.use(express.json());
 
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: frontend_uri,
     credentials: true,
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type']
@@ -22,10 +30,7 @@ app.use(cors({
 
 app.use(cookieParser());
 
-const client_id = process.env.SPOTIFY_CLIENT_ID;
-const client_secret = process.env.SPOTIFY_CLIENT_SECRET;
-const redirect_uri = process.env.REDIRECT_URI;
-const frontend_uri = process.env.FRONTEND_URI;
+let authHeader = Buffer.from(`${client_id}:${client_secret}`).toString('base64');
 
 const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
@@ -39,47 +44,6 @@ function generateRandomString(length) {
     return result;
 }
 
-app.post('/serialize', (req, res) => {
-	const track = req.body;
-
-    console.log(track);
-
-	let existingData = [];
-
-	if (fs.existsSync(filePath)) {
-		const raw = fs.readFileSync(filePath, 'utf-8');
-		try {
-			existingData = JSON.parse(raw);
-		} catch {
-			existingData = [];
-            res.json({"ok": false})
-            return;
-		}
-	}
-
-	existingData.push(track);
-
-	fs.writeFileSync(filePath, JSON.stringify(existingData, null, 2));
-
-    res.json({"ok": true});
-});
-
-app.get('/deserialize', (req, res) => {
-	let existingData = [];
-
-	if (fs.existsSync(filePath)) {
-		const raw = fs.readFileSync(filePath, 'utf-8');
-		try {
-			existingData = JSON.parse(raw);
-		} catch {
-			existingData = [];
-		}
-	}
-    
-    res.json(existingData); 
-});
-
-
 app.get('/login', (req, res) => {
     var state = generateRandomString(16);
     const scope = [
@@ -87,8 +51,6 @@ app.get('/login', (req, res) => {
         'user-read-private',
         'user-read-email'
       ].join(' ');
-    const redirect_uri = process.env.REDIRECT_URI;
-    const client_id = process.env.SPOTIFY_CLIENT_ID;
 
     res.redirect('https://accounts.spotify.com/authorize?' +
         querystring.stringify({
@@ -121,18 +83,16 @@ app.get('/callback', async (req, res) => {
             }), {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
-                    'Authorization': 'Basic ' + Buffer.from(`${client_id}:${client_secret}`).toString('base64')
+                    'Authorization': 'Basic ' + authHeader
                 }
             });
         }
 
         const access_token = tokenResponse.data.access_token;
-        let expires_in = tokenResponse.data.expires_in;
+        let time_created = Date.now();
         const refresh_token = tokenResponse.data.refresh_token;
 
-        expires_in -= 60;
-
-        const data = [access_token, expires_in, refresh_token]
+        const data = JSON.stringify([access_token, time_created, refresh_token]);
 
         res.cookie('spotify_data', data, {
             httpOnly: true,
@@ -152,72 +112,152 @@ app.get('/callback', async (req, res) => {
 app.get('/token', async (req, res) => {
     const data = req.cookies.spotify_data;
 
+    if(!data)
+    {
+        res.json({ success: false, token: "" });
+    }
+
+    let spotify_data = JSON.parse(data);
+    let access_token = spotify_data[0];
+    let time_created = spotify_data[1];
+    let refresh_token = spotify_data[2];
+
+    let dt = time_created + (60*60*1000) - Date.now();
+
     try {
-        if(data[1] <= 0)
+        if(dt <= 0)
         {
             const response = await axios.post(
-                'https://accounts.spotify.com/api/token',
-                new URLSearchParams({
+                'https://accounts.spotify.com/api/token', new URLSearchParams({
                     grant_type: 'refresh_token',
-                    refresh_token: data.refresh_token
+                    refresh_token: refresh_token
                 }),
                 {
                     headers: {
-                        Authorization: `Basic ${authHeader}`,
+                        Authorization: `Basic ` + authHeader,
                         'Content-Type': 'application/x-www-form-urlencoded'
                     }
                 }
             );
 
-            if(!response.data["success"])
+            if(!response.data)
             {
                 throw error;
             }
+
+            spotify_data = JSON.parse(response.data);
+
+            access_token = spotify_data[0];
         }
 
-        res.json({ success: true, token: req.cookies.spotify_data[0]});
+
+
+        res.json({ success: true, token: access_token});
 
     } catch (error) {
+        console.log("ERROR");
         res.json({ success: false, token: "" });
     }
 });
 
-app.get('/refresh-token', async (req, res) => {
-    const data = req.cookies.data;
-
-    const authHeader = Buffer.from(
-        `${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`
-    ).toString('base64');
-    
-    try {
-        const response = await axios.post(
-            'https://accounts.spotify.com/api/token',
-            new URLSearchParams({
-                grant_type: 'refresh_token',
-                refresh_token: data[2]
-            }),
+app.get('/get-random-song', async (req, res) => {
+    try{
+        const response = await axios.get(
+            strapi_uri + "/api/songs",
             {
                 headers: {
-                    Authorization: `Basic ${authHeader}`,
-                    'Content-Type': 'application/x-www-form-urlencoded'
+                    Authorization: `Bearer ` + strapi_token
+                },
+            }
+        );
+
+        let index = Math.floor(Math.random() * response.data.data.length);
+
+        res.json({success: true, data: response.data.data[index]});
+    }
+    catch(error)
+    {
+        res.json({success: false, data: ""})
+    }
+
+});
+
+app.post('/add-song', async (req, res) => {
+    
+    let errMes = "Standart Error!";
+
+    try {
+        const data = req.cookies.spotify_data;
+        spotify_data = JSON.parse(data);
+
+        const trackInfo = await axios.get('https://api.spotify.com/v1/tracks/' + req.body.id, {
+            headers: {
+                'Authorization': 'Bearer ' + spotify_data[0]
+            }
+        });
+
+        let title = trackInfo.data.name;
+        let artist = trackInfo.data.artists[0].name;
+        let year = trackInfo.data.album.release_date.slice(0, 4);
+        let trackID = trackInfo.data.id;
+
+        let duplicate = false;
+
+        const res = await axios.get(
+            strapi_uri + "/api/songs",
+            {
+                headers: {
+                    Authorization: `Bearer ` + strapi_token
                 }
             }
         );
 
-        const data = [response.data.access_token, response.data.expires_in, response.data.refresh_token];
+        if(!res.data)
+        {
+            errMes = "No Strapi response!"
+            throw error;
+        }
 
-        res.cookie('spotfiy_data', data, {
-            httpOnly: true,
-            secure: false,
-            sameSite: 'Lax',
-            maxAge: 30 * 24 * 60 * 60 * 1000
-        });
+        for(let i = 0; i < res.data.data.length; i++)
+        {
+            if(res.data.data[i]["TrackID"] == trackID)
+            {
+                duplicate = true;
+                break;
+            }
+        }
 
-        res.json({ success: true });
+        if(duplicate)
+        {
+            errMes = title + ' is already added!';
+            throw error;
+        }
 
-    } catch (error) {
-        res.json({ success: false });
+        const response = await axios.post(
+            strapi_uri + "/api/songs",
+            {
+                data: {
+                    Title: title,
+                    Artist: artist,
+                    Year: year,
+                    TrackID: trackID
+                }
+            },
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ` + strapi_token
+                }
+            }
+        );
+        
+        res.json({success: true, message: 'Added ' + title + "!"});
+    }
+    catch(error)
+    {
+        res.json({success: false, message: errMes})
     }
 });
+
 
 app.listen(3000, () => console.log('Server running on http://localhost:3000'));

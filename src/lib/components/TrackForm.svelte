@@ -1,29 +1,33 @@
 <script>
-	let title = "";
-	let artist = "";
-	let year = "";
+    import { json } from "@sveltejs/kit";
+
 	let trackID = "";
 
-	async function save() {
-		const track = { title, artist, year, trackID };
+	function onKeyPressed(event)
+	{
+		if(event.key == "Enter")
+		{
+			save();
+		}
+	}
 
-		const res = await fetch('http://localhost:3000/serialize', {
+	async function save() {
+		const res = await fetch('http://localhost:3000/add-song', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
 			},
-			body: JSON.stringify(track)
+			credentials: 'include',
+			body: JSON.stringify({ id: trackID })
 		});
 
-		if (res.ok) {
-			title = "";
-			artist = "";
-			year = "";
+		let data = await res.json();
+
+		if (data.success) {
 			trackID = "";
-			console.log("SAVED!")
-		} else {
-			console.log("ERROR WHILE SAVING!");
 		}
+
+		console.log(data.message);
 	}
 </script>
 
@@ -140,11 +144,8 @@
 <div class="container">
 	<div class="input-group">
 		<a class="at" href="./"><i class="fas fa-music"></i>MusicQuiz</a>
-		<input placeholder="Title..." bind:value={title} /><br />
-		<input placeholder="Artist..." bind:value={artist} /><br />
-		<input placeholder="Year..." bind:value={year} /><br />
-		<input placeholder="Track ID..." bind:value={trackID} /><br />
+		<input placeholder="Spotfiy TrackID..." bind:value={trackID} onkeypress={onKeyPressed} /><br />
 
-		<button on:click={save}>Save</button>
+		<button onclick={save}>Save</button>
 	</div>
 </div>

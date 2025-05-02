@@ -4,6 +4,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </svelte:head>
 
+<script>
+    import { PUBLIC_LOGIN_URI_SERVER } from "$env/static/public";
+</script>
+
 <style>
     :global(body) {
         margin: 0;
@@ -99,7 +103,7 @@
             <a class="at" href="./"><i class="fas fa-music"></i>MusicQuiz</a>
         </div>
         <div class="button-group">
-            <a class="a_login" href="http://localhost:3000/login"><i class="fab fa-spotify"></i>Login</a>
+            <a class="a_login" href={PUBLIC_LOGIN_URI_SERVER}><i class="fab fa-spotify"></i>Login</a>
         </div>
     </div>
 

@@ -1,3 +1,5 @@
+import { PUBLIC_TOKEN_URI_SERVER } from "$env/static/public";
+
 export default class MusicPlayer 
 {
     constructor()
@@ -22,8 +24,8 @@ export default class MusicPlayer
 			this.player = new spotifyPlayer.Player({
 				name: 'MusicQuiz',
 				getOAuthToken: async cb => {
-					const res = await fetch('http://localhost:3000/token', { credentials: 'include' });
-					let data = await res.json();	
+					const res = await fetch(PUBLIC_TOKEN_URI_SERVER, { credentials: 'include' });
+					let data = await res.json();
 					if (!data.success) throw new Error('Not authenticated');
 					this.token = data.token;
 					cb(this.token);

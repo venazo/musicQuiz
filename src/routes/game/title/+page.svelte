@@ -26,4 +26,4 @@
     });
 </script>
 
-<SongGuess mode="title" musicPlayer={music_Player} />
+<SongGuess mode="Title" musicPlayer={music_Player} />

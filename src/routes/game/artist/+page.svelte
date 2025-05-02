@@ -26,4 +26,4 @@
     });
 </script>
 
-<SongGuess mode="artist" musicPlayer={music_Player} />
+<SongGuess mode="Artist" musicPlayer={music_Player} />

@@ -3,6 +3,8 @@
 
     let {mode = "title", musicPlayer} = $props();
 
+    let tendency = $state("");
+
     let guess = $state("");
     let bestGuess = $state([]);
     let bestGuessString = $state("");
@@ -12,9 +14,21 @@
     let trackID = "";
     let guessable = '';
     let guesses = 3;
-    let maxGuesslength = $state(20);
+    let maxGuesslength = $state(35);
 
     onMount( async () => Init());
+
+	function onKeyPressed(event)
+	{
+		if(event.key == "Enter")
+		{
+            if(!lost && !won ) 
+			    Guess();
+            else{
+                Next();
+            }
+		}
+	}
 
     async function Init() 
     {
@@ -28,27 +42,23 @@
         trackID = "";
         guesses = 3;
         
-        const res = await fetch('http://localhost:3000/deserialize', {
+        const res = await fetch('http://localhost:3000/get-random-song', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
             },
         })
-        .then(response => response.json())
-        .then(data => {
-            songList = data
-        });
+        const data = await res.json();
+        let song = data.data;
 
-        let index = Math.floor(Math.random() * songList.length);
-        let randomSong = songList[index];
+        trackID = "spotify:track:" + song["TrackID"];
+        guessable = song[mode].split(" ");
 
-
-        trackID = "spotify:track:" + randomSong["trackID"];
-        guessable = randomSong[mode].split(" ");
-
-        if(mode == "year")
+        if(mode == "Year")
         {
+            guessable = guessable[0]
             maxGuesslength = 4;
+            guess = 2000;
         }
 
         bestGuessString = "";
@@ -62,8 +72,48 @@
         }
     }
 
+    function GuessYear()
+    {
+        let numGuess = Number(guess);
+        let numGuessable = Number(guessable)
+
+        if(numGuess >= (numGuessable - 1) && numGuess <= (numGuessable + 1))
+        {
+            guess = guessable;
+            tendency = "";
+            won = true;
+            return;
+        }
+
+        if(numGuess < numGuessable)
+        {
+            tendency = "▲";
+        }
+
+        if(numGuess > numGuessable)
+        {
+            tendency = "▼";
+        }
+
+        guesses--;
+
+        if(guesses == 0)
+        {
+            lost = true;
+            guess = guessable;
+            tendency = "";
+            return;
+        }
+    }
+
     function Guess()
     {
+        if(mode == "Year")
+        {
+            GuessYear();
+            return;
+        }
+
         const guessWords = guess.split(" ");
 
         for (let i = 0; i < guessable.length; i++) 
@@ -303,12 +353,60 @@
         margin-right: 0.5rem;
     }
 
-    .GuessDisplay{
-		display: flex;
+    text{
+		display: inline-block;
 		flex-direction: column;
     	font-family: Tahoma, Verdana;
         font-weight: bold;
         font-size: clamp(2rem, 4vw, 3rem);
+    }
+
+    text:hover{
+        transform: scale(1.05);
+    }
+
+    .tendency {
+        color:  #e29924;
+    }
+
+    .slider
+    {
+        appearance: none;
+        width: 35vw;
+        height: 1vh;
+        padding: 1rem 2rem;
+        background: #1e1e1e;
+        opacity: 0.7;
+    }
+
+    .slider:hover{
+        transform: scale(1.05);
+        box-shadow: 0 6px 25px #3b3b3b;
+        opacity: 1;
+    }
+
+    .slider::-moz-range-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 3vh;
+        height: 3vh;
+        background: #e29924;
+        border: 0px solid white;
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    .slider::-moz-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 3vh;
+        height: 3vh;
+        background: #e29924;
+        border: 0px solid white;
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
 
 	@media (max-width: 600px) {
@@ -323,9 +421,22 @@
         <a class="at" href="./"><i class="fas fa-music"></i>MusicQuiz</a>
     </div>
     <div class="input-group">
-        <text class="GuessDisplay">{bestGuessString}</text>
-        <input placeholder="Guess the Song..." bind:value={guess} maxlength={maxGuesslength} /><br>
-        <button class="button" onclick={Play}><i class="fas fa-play"></i>Start</button>
+        {#if mode == "Year"}
+            <div>
+                <text class="guessDisplay">{guess}</text>
+                <text class= "tendency"> {tendency}</text>
+            </div>
+
+            {#if !won && !lost}
+                <input type="range" class="slider" min="1920" max={new Date().getFullYear()} step="1" bind:value={guess}/>
+            {/if}
+        {:else}
+            <text class="guessDisplay">{bestGuessString}</text>
+            {#if !won && !lost}
+                <input placeholder={"Guess the " + mode + "..."} bind:value={guess} onkeypress={onKeyPressed} maxlength={maxGuesslength} /><br>
+            {/if}
+        {/if}
+            <button class="button" onclick={Play}><i class="fas fa-play"></i>Start</button>
         {#if won}
             <button class="won" onclick={Next}>Next</button>
         {:else}

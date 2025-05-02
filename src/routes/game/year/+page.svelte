@@ -26,4 +26,4 @@
     });
 </script>
 
-<SongGuess mode="year" musicPlayer={music_Player} />
+<SongGuess mode="Year" musicPlayer={music_Player} />
